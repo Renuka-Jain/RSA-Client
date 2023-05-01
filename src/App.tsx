@@ -12,6 +12,11 @@ function App() {
     setmessagetxt(event.target.value);
   };
 
+  const [messagecypher, setMessagecypher] = useState('');
+
+
+ 
+
   let signed = '';
 
   useEffect(() => {
@@ -23,17 +28,16 @@ function App() {
   }, [messagetxt]);
 
   const encryptMessage = async () => {
-    console.log('hola')
     const rsaKeys = await rsa.generateKeys(2048);
     console.log(rsaKeys)
-    signed = rsa.MyRsaPrivatKey.sign(messagetxt)
-    console.log(signed);
+    
+   
   }
 
   const signMessage = async () => {
-
-    console.log('log');
+    signed = rsa.MyRsaPrivatKey.sign(messagetxt)
     
+    setMessagecypher('signed message: '+ signed!.toString())
   }
 
 
@@ -51,9 +55,9 @@ function App() {
         
       ></textarea>
       <div>
-      <button onClick={ () => encryptMessage()}>encrypt</button>
-      <button onClick={ () =>signMessage()}>sign</button>
-      </div>
+      <button className='encryptbtn' onClick={ () => encryptMessage()}>encrypt</button>
+      <button className='signbtn' onClick={ () =>signMessage()}>sign</button>
+      </div>  
       <br />
      
       <div>
@@ -61,7 +65,8 @@ function App() {
         ref={textareaRef}
         style={styles.textareaDefaultStyle}
         onChange={textAreaChange}
-        value={signed}
+        value={messagecypher}
+        className='cyphertxt'
       ></textarea>
       </div>
       <div>
