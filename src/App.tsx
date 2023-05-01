@@ -1,5 +1,6 @@
 import './App.css';
 import React, { useState, useEffect, useRef } from "react";
+import * as rsa from './rsa'
 
 
 function App() {
@@ -11,6 +12,8 @@ function App() {
     setmessagetxt(event.target.value);
   };
 
+  let signed = '';
+
   useEffect(() => {
     if (textareaRef && textareaRef.current) {
       textareaRef.current.style.height = "0px";
@@ -19,40 +22,52 @@ function App() {
     }
   }, [messagetxt]);
 
+  const encryptMessage = async () => {
+    console.log('hola')
+    const rsaKeys = await rsa.generateKeys(2048);
+    console.log(rsaKeys)
+    signed = rsa.MyRsaPrivatKey.sign(messagetxt)
+    console.log(signed);
+  }
+
+  const signMessage = async () => {
+
+    console.log('log');
+    
+  }
+
+
   return (
     <div className="App">
       <header className="App-header">
         <p>
           Enter here the message.
         </p>
-        <form action="/">
+        
         <textarea
         ref={textareaRef}
         style={styles.textareaDefaultStyle}
         onChange={textAreaChange}
         
       ></textarea>
-<div className="buttons">
-
-<div className="action_btn">
-
-<button name="submit" className="action_btn submit" type="submit" value="Encrypt" >Encrypt</button>
-<button name="submit" className="action_btn cancel" type="submit" value="Sign">Submit</button>
-
-<p id="saved"></p>
-
-</div>
-
-</div>
+      <div>
+      <button onClick={ () => encryptMessage()}>encrypt</button>
+      <button onClick={ () =>signMessage()}>sign</button>
+      </div>
+      <br />
+     
+      <div>
       <textarea
         ref={textareaRef}
         style={styles.textareaDefaultStyle}
         onChange={textAreaChange}
-        
+        value={signed}
       ></textarea>
-      <input type="submit" value="Send"/>
-
-      </form>
+      </div>
+      <div>
+      <button>send</button>
+      </div>
+      
       </header>
       
     </div>
@@ -79,5 +94,7 @@ const styles: { [name: string]: React.CSSProperties } = {
     backgroundColor: "#eee",
   },
 };
+
+
 
 

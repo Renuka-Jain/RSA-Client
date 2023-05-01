@@ -19,8 +19,10 @@ import * as bcu from 'bigint-crypto-utils'
 import crypto from 'crypto'
 
 export class MyRsaPrivatKey {
+  
   d: bigint
   n: bigint
+  static sign: any
 
   constructor(d: bigint, n: bigint) {
     this.d = d
@@ -28,12 +30,11 @@ export class MyRsaPrivatKey {
   }
 
   decrypt(c: bigint): bigint {
-    const x = bcu.modPow(c, this.d, this.n)
-    return x
+    return bcu.modPow(c, this.d, this.n) //=== clear message
   }
 
   sign(m: bigint): bigint {
-    return bcu.modPow(m, this.d, this.n)
+    return bcu.modPow(m, this.d, this.n) 
   }
 }
 
@@ -51,7 +52,6 @@ export class MyRsaPupblicKey {
     return c
   }
 
-
   verify(s: bigint): bigint {
     return bcu.modPow(s, this.e, this.n)
   }
@@ -59,10 +59,8 @@ export class MyRsaPupblicKey {
 }
 
 export interface KeyPair {
-
   publicKey: MyRsaPupblicKey
   privateKey: MyRsaPrivatKey
-
 }
 
 export const generateKeys = async function (bitlength: number): Promise<KeyPair> {
