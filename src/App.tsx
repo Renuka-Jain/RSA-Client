@@ -35,9 +35,9 @@ function App() {
   }
 
   const signMessage = async () => {
-    signed = rsa.MyRsaPrivatKey.sign(messagetxt)
-    
-    setMessagecypher('signed message: '+ signed!.toString())
+    //signed = rsa.MyRsaPrivatKey.sign(messagetxt)
+
+    setMessagecypher('signed message: '+ messagetxt!.toString())
   }
 
 
