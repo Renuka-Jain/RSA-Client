@@ -1,23 +1,20 @@
 import './App.css';
 import React, { useState, useEffect, useRef } from "react";
 import * as rsa from './rsa'
+import axios from 'axios'
 
 
 function App() {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   // The messagetxt of the textarea
-  const [messagetxt, setmessagetxt] = useState<String>();
+  const [messagetxt, setmessagetxt] = useState<String>("");
   // This function is triggered when textarea changes
   const textAreaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setmessagetxt(event.target.value);
   };
 
   const [messagecypher, setMessagecypher] = useState('');
-
-
- 
-
-  let signed = '';
+  const [action, setaction] = useState<String>();
 
   useEffect(() => {
     if (textareaRef && textareaRef.current) {
@@ -27,14 +24,40 @@ function App() {
     }
   }, [messagetxt]);
 
+  const getserverpublickey = async () => {
+    return await axios.get(`http://localhost:3001/rsapubkeyserver`);
+  
+  }
+
   const encryptMessage = async () => {
-    const rsaKeys = await rsa.generateKeys(2048);
-    console.log(rsaKeys)
+    setaction("encrypt");
+
+    // const serverpubkey= getserverpublickey()
+    // alert(serverpubkey);
     
-   
+    // setMessagecypher(serverpubkey.toString());
+    // const rsaKeys = await rsa.generateKeys(2048);
+    // console.log(rsaKeys)
+    
+    setMessagecypher('encrypted message: '+ messagetxt!.toString())
+  }
+
+  const sendMessage = async () => {
+    if (messagetxt==="")
+      alert('enter a message')
+    if (action==="sign")
+      await axios.post(`http://localhost:3001/signed`,{text: messagecypher });
+    else if (action==="encypt")
+      await axios.post(`http://localhost:3001/encypted`,{text: messagecypher });
+    else{
+      alert('select mode');
+    }
+
+
   }
 
   const signMessage = async () => {
+    setaction("sign");
     //signed = rsa.MyRsaPrivatKey.sign(messagetxt)
 
     setMessagecypher('signed message: '+ messagetxt!.toString())
@@ -55,8 +78,8 @@ function App() {
         
       ></textarea>
       <div>
-      <button className='encryptbtn' onClick={ () => encryptMessage()}>encrypt</button>
-      <button className='signbtn' onClick={ () =>signMessage()}>sign</button>
+      <button className='encryptbtn' onClick={ () => encryptMessage()} style={{ background: action == "encrypt" ? "#9CCC65" : "#EEEEEE" }}>encrypt</button>
+      <button className='signbtn' onClick={ () => signMessage()} style={{ background: action === "sign" ? "#9CCC65" : "#EEEEEE" }}>sign</button>
       </div>  
       <br />
      
@@ -70,7 +93,7 @@ function App() {
       ></textarea>
       </div>
       <div>
-      <button>send</button>
+      <button className='sendbtn' onClick={() => sendMessage()}>send</button>
       </div>
       
       </header>
