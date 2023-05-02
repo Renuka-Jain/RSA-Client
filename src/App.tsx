@@ -45,10 +45,10 @@ function App() {
   const sendMessage = async () => {
     if (messagetxt==="")
       alert('enter a message')
-    if (action==="sign")
-      await axios.post(`http://localhost:3001/signed`,{text: messagecypher });
-    else if (action==="encypt")
-      await axios.post(`http://localhost:3001/encypted`,{text: messagecypher });
+    else if (action==="sign")
+      await axios.post(`http://localhost:3001/signed`,{text: messagecypher.toString()});
+    else if (action==="encrypt")
+      await axios.post(`http://localhost:3001/encrypted`,{text: messagecypher.toString()});
     else{
       alert('select mode');
     }
