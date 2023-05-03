@@ -1,22 +1,5 @@
-// export const encrypt = (str: string) => {
-//     const reverse = str.split('').reverse().join('')
-//     return 'encrypted_' + reverse
-//   }
-
-//   export const decrypt = (str: string) => {
-//     const strip = str.substr(10)  // Let us remove the 'encrypted_' part
-//     return strip.split('').reverse().join('')
-//   }
-
-//   // exports.encrypt = encrypt
-//   // exports.decrypt = decrypt
-
-
-
-import bigint from "big-integer"
-
 import * as bcu from 'bigint-crypto-utils'
-import crypto from 'crypto'
+import { bigintToBase64, base64ToBigint } from 'bigint-conversion'
 
 export class MyRsaPrivatKey {
   
@@ -38,6 +21,10 @@ export class MyRsaPrivatKey {
   }
 }
 
+export interface MyRsaJsonPupblicKey {
+  e: string // base64
+  n: string // base64
+}
 export class MyRsaPupblicKey {
   e: bigint
   n: bigint
@@ -56,6 +43,19 @@ export class MyRsaPupblicKey {
     return bcu.modPow(s, this.e, this.n)
   }
 
+  toJSON(): MyRsaJsonPupblicKey {
+    return {
+      e: bigintToBase64(this.e),
+      n: bigintToBase64(this.n)
+    }
+  }
+
+  static fromJSON(rsaJsonPubKey: MyRsaJsonPupblicKey): MyRsaPupblicKey {
+    const e = base64ToBigint(rsaJsonPubKey.e)
+    const n = base64ToBigint(rsaJsonPubKey.n)
+
+    return new MyRsaPupblicKey(e, n)
+  }
 }
 
 export interface KeyPair {

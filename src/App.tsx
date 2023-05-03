@@ -1,20 +1,18 @@
 import './App.css';
 import React, { useState, useEffect, useRef } from "react";
-import * as rsa from './rsa'
 import axios from 'axios'
-
+import * as rsa from './rsa'
 
 function App() {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  // The messagetxt of the textarea
   const [messagetxt, setmessagetxt] = useState<String>("");
-  // This function is triggered when textarea changes
   const textAreaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setmessagetxt(event.target.value);
   };
 
   const [messagecypher, setMessagecypher] = useState('');
   const [action, setaction] = useState<String>();
+  let pubkey: rsa.MyRsaPupblicKey
 
   useEffect(() => {
     if (textareaRef && textareaRef.current) {
@@ -25,8 +23,9 @@ function App() {
   }, [messagetxt]);
 
   const getserverpublickey = async () => {
-    return await axios.get(`http://localhost:3001/rsapubkeyserver`);
-  
+    const res = await axios.get(`http://localhost:3001/rsapubkey`);
+    // res.data es un json
+    pubkey = rsa.MyRsaPupblicKey.fromJSON(res.data);
   }
 
   const encryptMessage = async () => {
@@ -46,23 +45,13 @@ function App() {
     if (messagetxt==="")
       alert('enter a message')
     else if (action==="sign")
-      await axios.post(`http://localhost:3001/signed`,{text: messagecypher.toString()});
+      await axios.post(`http://localhost:3001/sign`,{text: messagecypher.toString()});
     else if (action==="encrypt")
-      await axios.post(`http://localhost:3001/encrypted`,{text: messagecypher.toString()});
+      await axios.post(`http://localhost:3001/decrypt`,{text: messagecypher.toString()});
     else{
       alert('select mode');
     }
-
-
   }
-
-  const signMessage = async () => {
-    setaction("sign");
-    //signed = rsa.MyRsaPrivatKey.sign(messagetxt)
-
-    setMessagecypher('signed message: '+ messagetxt!.toString())
-  }
-
 
   return (
     <div className="App">
@@ -79,7 +68,6 @@ function App() {
       ></textarea>
       <div>
       <button className='encryptbtn' onClick={ () => encryptMessage()} style={{ background: action == "encrypt" ? "#9CCC65" : "#EEEEEE" }}>encrypt</button>
-      <button className='signbtn' onClick={ () => signMessage()} style={{ background: action === "sign" ? "#9CCC65" : "#EEEEEE" }}>sign</button>
       </div>  
       <br />
      
@@ -103,9 +91,7 @@ function App() {
   
 }
 
-
 export default App;
-
 
 const styles: { [name: string]: React.CSSProperties } = {
   container: {
@@ -122,7 +108,3 @@ const styles: { [name: string]: React.CSSProperties } = {
     backgroundColor: "#eee",
   },
 };
-
-
-
-
