@@ -2,8 +2,11 @@ import './App.css';
 import React, { useState, useEffect, useRef } from "react";
 import axios from 'axios'
 import * as rsa from './rsa'
+import * as bigintConversion from 'bigint-conversion'
+
 
 function App() {
+  const apiServer ="http://localhost:3001/";
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [messagetxt, setmessagetxt] = useState<String>("");
   const textAreaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -11,8 +14,7 @@ function App() {
   };
 
   const [messagecypher, setMessagecypher] = useState('');
-  const [action, setaction] = useState<String>();
-  let pubkey: rsa.MyRsaPupblicKey
+  let pubkey: rsa.MyRsaPupblicKey;
 
   useEffect(() => {
     if (textareaRef && textareaRef.current) {
@@ -23,34 +25,28 @@ function App() {
   }, [messagetxt]);
 
   const getserverpublickey = async () => {
-    const res = await axios.get(`http://localhost:3001/rsapubkey`);
+    const res = await axios.get(`${apiServer}rsapubkey`);
     // res.data es un json
     pubkey = rsa.MyRsaPupblicKey.fromJSON(res.data);
+    console.log(pubkey);
   }
 
   const encryptMessage = async () => {
-    setaction("encrypt");
-
-    // const serverpubkey= getserverpublickey()
-    // alert(serverpubkey);
+    await getserverpublickey(); //asincrona
+    const mssgtoBigint:bigint = bigintConversion.textToBigint(messagetxt.toString());
+    alert(mssgtoBigint)
+    let mssgencrypted = pubkey.encrypt(mssgtoBigint);
+    setMessagecypher(bigintConversion.bigintToBase64(mssgencrypted));
+    //bigintConversion.bigintToBase64(mssgencrypted);//envia al server
     
-    // setMessagecypher(serverpubkey.toString());
-    // const rsaKeys = await rsa.generateKeys(2048);
-    // console.log(rsaKeys)
-    
-    setMessagecypher('encrypted message: '+ messagetxt!.toString())
   }
 
   const sendMessage = async () => {
     if (messagetxt==="")
-      alert('enter a message')
-    else if (action==="sign")
-      await axios.post(`http://localhost:3001/sign`,{text: messagecypher.toString()});
-    else if (action==="encrypt")
-      await axios.post(`http://localhost:3001/decrypt`,{text: messagecypher.toString()});
-    else{
-      alert('select mode');
-    }
+      alert('enter a message');
+    else
+      await axios.post(`http://localhost:3001/decrypt`,{text: messagecypher});
+
   }
 
   return (
@@ -67,7 +63,7 @@ function App() {
         
       ></textarea>
       <div>
-      <button className='encryptbtn' onClick={ () => encryptMessage()} style={{ background: action == "encrypt" ? "#9CCC65" : "#EEEEEE" }}>encrypt</button>
+      <button className='encryptbtn' onClick={ () => encryptMessage()} >encrypt</button>
       </div>  
       <br />
      
